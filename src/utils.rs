@@ -1,4 +1,5 @@
 use ratatui::{
+	layout::{Constraint, Flex, Layout, Rect},
 	style::{Color, Style, Stylize},
 	widgets::{Block, BorderType},
 };
@@ -41,4 +42,10 @@ pub fn title_block(title: &str) -> Block {
 		.border_type(BorderType::Rounded)
 		.border_style(Style::default().fg(Color::DarkGray))
 		.title(title.white())
+}
+
+pub fn center(area: Rect, horizontal: Constraint, vertical: Constraint) -> Rect {
+	let [area] = Layout::horizontal([horizontal]).flex(Flex::Center).areas(area);
+	let [area] = Layout::vertical([vertical]).flex(Flex::Center).areas(area);
+	area
 }

@@ -51,6 +51,7 @@ impl App {
 			KeyCode::Left => self.decrease(),
 			KeyCode::Char('j') | KeyCode::Down => match self.current_pane {
 				Pane::Monitors => self.selected_monitor.select_next(),
+				// TODO: require confirm to change preset.
 				Pane::Presets => self.selected_preset.select_next(),
 				_ => {}
 			},

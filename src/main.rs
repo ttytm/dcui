@@ -1,40 +1,25 @@
 mod events;
-mod popup;
+mod footer;
+mod help;
 mod settings;
+mod sidebar;
+mod tui;
 mod utils;
 
 use anyhow::Result;
 use ddc_hi::{Ddc, Display};
-use ratatui::{
-	buffer::Buffer,
-	layout::{Alignment, Constraint, Flex, Layout, Rect},
-	style::{Color, Style, Stylize},
-	widgets::{Clear, List, ListState, Paragraph, StatefulWidget, Widget},
-	DefaultTerminal,
-};
-
-use utils::title_block;
-
-const BRIGHTNESS_CODE: u8 = 0x10;
-const CONTRAST_CODE: u8 = 0x12;
-
-fn main() -> Result<()> {
-	let terminal = ratatui::init();
-	let app_result = App::init(&terminal)?.run(terminal);
-	ratatui::restore();
-	app_result
-}
+use ratatui::{widgets::ListState, DefaultTerminal};
 
 #[derive(Default)]
 struct App {
 	should_exit: bool,
 	show_help: bool,
 	monitors: Vec<Monitor>,
-	// presets: Vec<Monitor>,
 	current_pane: Pane,
 	terminal_width: u16,
 	selected_monitor: ListState,
 	selected_preset: ListState,
+	// styles: Styles,
 }
 
 /* struct Monitors {
@@ -50,12 +35,27 @@ struct Monitor {
 	contrast_columns: u16,
 }
 
+/* struct Styles {
+	border_style: Style,
+	border_type: BorderType,
+} */
+
 #[derive(Default, PartialEq)]
 enum Pane {
 	#[default]
 	Monitors,
 	Settings,
 	Presets,
+}
+
+const BRIGHTNESS_CODE: u8 = 0x10;
+const CONTRAST_CODE: u8 = 0x12;
+
+fn main() -> Result<()> {
+	let terminal = ratatui::init();
+	let app_result = App::init(&terminal)?.run(terminal);
+	ratatui::restore();
+	app_result
 }
 
 fn get_monitors(term_width: u16) -> Result<Vec<Monitor>> {
@@ -78,6 +78,7 @@ fn get_monitors(term_width: u16) -> Result<Vec<Monitor>> {
 			contrast_columns,
 		})
 	}
+
 	Ok(monitors)
 }
 
@@ -91,7 +92,6 @@ impl App {
 			monitors: get_monitors(terminal.size()?.width)?,
 			..Default::default()
 		};
-		// TODO: require confirm to change preset.
 		app.selected_preset.select(Some(0));
 		app.selected_monitor.select(Some(0));
 		Ok(app)
@@ -145,80 +145,5 @@ impl App {
 
 	fn quit(&mut self) {
 		self.should_exit = true;
-	}
-}
-
-impl Widget for &mut App {
-	fn render(self, area: Rect, buf: &mut Buffer) {
-		let [main_area, footer_area] = Layout::vertical([Constraint::Fill(1), Constraint::Length(1)]).areas(area);
-		let [left, right] = Layout::horizontal([Constraint::Length(35), Constraint::Fill(1)]).areas(main_area);
-		self.render_sidebar(left, buf);
-		self.render_settings(right, buf);
-		self.render_help(main_area, buf);
-		footer().render(footer_area, buf);
-	}
-}
-
-fn footer() -> impl Widget {
-	Paragraph::new("[ Repo](https://github.com/ttytm/dcui)  ")
-		.alignment(Alignment::Right)
-		.fg(Color::DarkGray)
-}
-
-fn center(area: Rect, horizontal: Constraint, vertical: Constraint) -> Rect {
-	let [area] = Layout::horizontal([horizontal]).flex(Flex::Center).areas(area);
-	let [area] = Layout::vertical([vertical]).flex(Flex::Center).areas(area);
-	area
-}
-
-impl App {
-	fn render_help(&mut self, area: Rect, buf: &mut Buffer) {
-		if !self.show_help {
-			return;
-		}
-		let area = center(area, Constraint::Percentage(30), Constraint::Length(3));
-		Clear.render(area, buf);
-		let popup = title_block("Help");
-		Widget::render(popup, area, buf);
-	}
-
-	fn render_sidebar(&mut self, area: Rect, buf: &mut Buffer) {
-		let constraints = if self.current_pane == Pane::Monitors {
-			[Constraint::Percentage(62), Constraint::Fill(1)]
-		} else {
-			[Constraint::Fill(1), Constraint::Fill(1)]
-		};
-		let [monitors_area, preset_area] = Layout::vertical(constraints).areas(area);
-		self.render_monitors(monitors_area, buf);
-		self.render_presets(preset_area, buf);
-	}
-
-	fn render_monitors(&mut self, area: Rect, buf: &mut Buffer) {
-		let monitors: Vec<String> = self.monitors.iter().filter_map(|m| m.display.info.model_name.clone()).collect();
-		let mut title = title_block("Monitors");
-		let mut monitors = List::new(monitors);
-		if self.current_pane == Pane::Monitors {
-			title = title.border_style(Style::new().fg(Color::Magenta));
-			monitors = monitors.highlight_style(Style::new().bg(Color::Blue))
-		} else {
-			monitors = monitors.highlight_style(Style::new().fg(Color::Magenta))
-		};
-		monitors = monitors.block(title);
-		StatefulWidget::render(monitors, area, buf, &mut self.selected_monitor);
-	}
-
-	fn render_presets(&mut self, area: Rect, buf: &mut Buffer) {
-		// TODO:
-		let items = ["None".italic(), "Day".into(), "Evening".into(), "Night".into()];
-		let mut title = title_block("Presets");
-		let mut presets = List::new(items);
-		if self.current_pane == Pane::Presets {
-			title = title.border_style(Style::new().fg(Color::Magenta));
-			presets = presets.highlight_style(Style::new().bg(Color::Blue))
-		} else {
-			presets = presets.highlight_style(Style::new().fg(Color::Magenta))
-		};
-		presets = presets.block(title);
-		StatefulWidget::render(presets, area, buf, &mut self.selected_preset);
 	}
 }
