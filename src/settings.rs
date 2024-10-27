@@ -5,14 +5,11 @@ use ratatui::{
 	widgets::{LineGauge, Widget},
 };
 
-use crate::{
-	utils::{style_number, title_block},
-	App, Pane,
-};
+use crate::{utils::title_block, App, Pane};
 
 impl App {
 	pub fn render_settings(&self, area: Rect, buf: &mut Buffer) {
-		let mut block = title_block("Settings", style_number(3, false));
+		let mut block = title_block("Settings");
 		if self.current_pane == Pane::Settings {
 			block = block.border_style(Style::new().fg(Color::Magenta));
 		};

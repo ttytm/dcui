@@ -1,17 +1,19 @@
+mod events;
+mod popup;
+mod settings;
+mod utils;
+
 use anyhow::Result;
 use ddc_hi::{Ddc, Display};
 use ratatui::{
 	buffer::Buffer,
-	layout::{Alignment, Constraint, Layout, Rect},
+	layout::{Alignment, Constraint, Flex, Layout, Rect},
 	style::{Color, Style, Stylize},
-	widgets::{List, ListState, Paragraph, StatefulWidget, Widget},
+	widgets::{Clear, List, ListState, Paragraph, StatefulWidget, Widget},
 	DefaultTerminal,
 };
-use utils::{style_number, title_block};
 
-mod events;
-mod settings;
-mod utils;
+use utils::title_block;
 
 const BRIGHTNESS_CODE: u8 = 0x10;
 const CONTRAST_CODE: u8 = 0x12;
@@ -26,6 +28,7 @@ fn main() -> Result<()> {
 #[derive(Default)]
 struct App {
 	should_exit: bool,
+	show_help: bool,
 	monitors: Vec<Monitor>,
 	// presets: Vec<Monitor>,
 	current_pane: Pane,
@@ -38,6 +41,7 @@ struct App {
 	items: Vec<Monitor>,
 	state: ListState
 } */
+
 struct Monitor {
 	display: Display,
 	brightness: u16,
@@ -77,7 +81,6 @@ fn get_monitors(term_width: u16) -> Result<Vec<Monitor>> {
 	Ok(monitors)
 }
 
-// TODO: abstract frame.
 // TODO: help popup with keymaps.
 // TODO: footer.
 // TODO: line gauges.
@@ -151,18 +154,34 @@ impl Widget for &mut App {
 		let [left, right] = Layout::horizontal([Constraint::Length(35), Constraint::Fill(1)]).areas(main_area);
 		self.render_sidebar(left, buf);
 		self.render_settings(right, buf);
+		self.render_help(main_area, buf);
 		footer().render(footer_area, buf);
 	}
 }
 
 fn footer() -> impl Widget {
-	Paragraph::new(" Repo [https://github.com/ttytm/dcui]  ")
+	Paragraph::new("[ Repo](https://github.com/ttytm/dcui)  ")
 		.alignment(Alignment::Right)
 		.fg(Color::DarkGray)
-		.bold()
+}
+
+fn center(area: Rect, horizontal: Constraint, vertical: Constraint) -> Rect {
+	let [area] = Layout::horizontal([horizontal]).flex(Flex::Center).areas(area);
+	let [area] = Layout::vertical([vertical]).flex(Flex::Center).areas(area);
+	area
 }
 
 impl App {
+	fn render_help(&mut self, area: Rect, buf: &mut Buffer) {
+		if !self.show_help {
+			return;
+		}
+		let area = center(area, Constraint::Percentage(30), Constraint::Length(3));
+		Clear.render(area, buf);
+		let popup = title_block("Help");
+		Widget::render(popup, area, buf);
+	}
+
 	fn render_sidebar(&mut self, area: Rect, buf: &mut Buffer) {
 		let constraints = if self.current_pane == Pane::Monitors {
 			[Constraint::Percentage(62), Constraint::Fill(1)]
@@ -176,7 +195,7 @@ impl App {
 
 	fn render_monitors(&mut self, area: Rect, buf: &mut Buffer) {
 		let monitors: Vec<String> = self.monitors.iter().filter_map(|m| m.display.info.model_name.clone()).collect();
-		let mut title = title_block("Monitors", style_number(1, false));
+		let mut title = title_block("Monitors");
 		let mut monitors = List::new(monitors);
 		if self.current_pane == Pane::Monitors {
 			title = title.border_style(Style::new().fg(Color::Magenta));
@@ -191,7 +210,7 @@ impl App {
 	fn render_presets(&mut self, area: Rect, buf: &mut Buffer) {
 		// TODO:
 		let items = ["None".italic(), "Day".into(), "Evening".into(), "Night".into()];
-		let mut title = title_block("Presets", style_number(2, false));
+		let mut title = title_block("Presets");
 		let mut presets = List::new(items);
 		if self.current_pane == Pane::Presets {
 			title = title.border_style(Style::new().fg(Color::Magenta));

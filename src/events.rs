@@ -59,6 +59,7 @@ impl App {
 				Pane::Presets => self.selected_preset.select_previous(),
 				_ => {}
 			},
+			KeyCode::Char('?') => self.show_help = !self.show_help,
 			_ => {}
 		}
 
