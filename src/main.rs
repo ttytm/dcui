@@ -1,8 +1,4 @@
 mod events;
-mod footer;
-mod help;
-mod settings;
-mod sidebar;
 mod tui;
 mod utils;
 

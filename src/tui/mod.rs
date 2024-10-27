@@ -1,10 +1,15 @@
+mod footer;
+mod help;
+mod settings;
+mod sidebar;
+
 use ratatui::{
 	buffer::Buffer,
 	layout::{Constraint, Layout, Rect},
 	widgets::Widget,
 };
 
-use crate::{footer, App};
+use crate::App;
 
 impl Widget for &mut App {
 	fn render(self, area: Rect, buf: &mut Buffer) {
