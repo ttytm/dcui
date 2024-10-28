@@ -32,7 +32,7 @@ impl App {
 			.collect();
 		let info_table = Table::new(info_rows, widths).header(Row::new(vec!["General".bold()]));
 
-		let keys_rows: Vec<Row> = [
+		let keys_rows = [
 			("Show Help", "?"),
 			("Quit", "q"),
 			("Next Pane", "<tab>, l"),
@@ -44,7 +44,7 @@ impl App {
 		]
 		.into_iter()
 		.map(|(desc, key)| Row::new([Line::from(desc), Line::from(key).right_aligned()]))
-		.collect();
+		.collect::<Vec<Row>>();
 		let keys_table = Table::new(keys_rows, widths).header(Row::new(vec!["Keys".bold()]));
 
 		let [info_area, keys_area] =

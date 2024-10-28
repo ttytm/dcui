@@ -1,4 +1,4 @@
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 use anyhow::Result;
 use ratatui::crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
@@ -6,7 +6,7 @@ use ratatui::crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind, Ke
 use crate::{App, Pane};
 
 impl App {
-	fn handle_key(&mut self, key: KeyEvent) -> Result<()> {
+	fn handle_key(&mut self, key: KeyEvent, timeout: Duration) -> Result<()> {
 		if key.kind != KeyEventKind::Press {
 			return Ok(());
 		}
@@ -21,34 +21,24 @@ impl App {
 				_ => {}
 			}
 			return Ok(());
-		} else if key.modifiers.contains(KeyModifiers::SHIFT) {
-			match key.code {
-				KeyCode::Char('L') => self.increase(),
-				KeyCode::Char('H') => self.decrease(),
-				KeyCode::Char('G') => self.max(),
-				_ => {}
-			}
-			return Ok(());
 		}
 
 		match key.code {
 			// KeyCode::Char(' ') | KeyCode::Enter => self.start(),
-			KeyCode::Char('1') => self.current_pane = Pane::Monitors,
-			KeyCode::Char('2') => self.current_pane = Pane::Presets,
-			KeyCode::Char('3') => self.current_pane = Pane::Settings,
 			KeyCode::Char('q') => self.quit(),
-			KeyCode::Char('l') => match self.current_pane {
+			KeyCode::Char('l') | KeyCode::Tab => match self.current_pane {
 				Pane::Monitors => self.current_pane = Pane::Presets,
 				Pane::Presets => self.current_pane = Pane::Settings,
-				_ => {}
+				Pane::Settings => self.current_pane = Pane::Monitors,
 			},
-			KeyCode::Char('h') => match self.current_pane {
+			KeyCode::Char('h') | KeyCode::BackTab => match self.current_pane {
 				Pane::Settings => self.current_pane = Pane::Presets,
 				Pane::Presets => self.current_pane = Pane::Monitors,
-				_ => {}
+				Pane::Monitors => self.current_pane = Pane::Settings,
 			},
-			KeyCode::Right => self.increase(),
-			KeyCode::Left => self.decrease(),
+			KeyCode::Char('L') | KeyCode::Right => self.increase(),
+			KeyCode::Char('H') | KeyCode::Left => self.decrease(),
+			KeyCode::Char('G') => self.max(),
 			KeyCode::Char('j') | KeyCode::Down => match self.current_pane {
 				Pane::Monitors => self.selected_monitor.select_next(),
 				// TODO: require confirm to change preset.
@@ -61,21 +51,37 @@ impl App {
 				_ => {}
 			},
 			KeyCode::Char('?') => self.show_help = !self.show_help,
+			KeyCode::Esc => self.show_help = false,
+			KeyCode::Char(digit) if digit.is_numeric() => {
+				if let Some((last_digit, last_key_time)) = self.last_key.take() {
+					if last_key_time.elapsed() <= timeout {
+						self.set((last_digit.to_digit(10).unwrap() * 10 + digit.to_digit(10).unwrap()) as u16);
+					}
+				} else {
+					self.last_key = Some((digit, Instant::now()));
+				}
+				return Ok(());
+			}
 			_ => {}
 		}
+
+		self.last_key = None;
 
 		Ok(())
 	}
 
 	pub fn handle_events(&mut self) -> Result<()> {
-		let timeout = Duration::from_secs_f32(1.0 / 20.0);
+		let timeout = Duration::from_millis(750);
 
 		if !event::poll(timeout)? {
+			if let Some((last_digit, _)) = self.last_key.take() {
+				self.set(last_digit.to_digit(10).unwrap() as u16);
+			}
 			return Ok(());
 		}
 
 		if let Event::Key(key) = event::read()? {
-			self.handle_key(key)?;
+			self.handle_key(key, timeout)?;
 		};
 
 		Ok(())
