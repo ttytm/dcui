@@ -6,10 +6,14 @@ mod sidebar;
 use ratatui::{
 	buffer::Buffer,
 	layout::{Constraint, Layout, Rect},
+	style::Color,
 	widgets::Widget,
 };
 
 use crate::App;
+
+const BORDER_STYLE: Color = Color::Blue;
+const SELECTED_STYLE: Color = Color::Blue;
 
 impl Widget for &mut App {
 	fn render(self, area: Rect, buf: &mut Buffer) {

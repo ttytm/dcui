@@ -69,7 +69,8 @@ impl Default for SelectionState {
 	}
 }
 
-// TODO: line gauge styles.
+// TODO: Toggle contrast viz.
+// TODO: Help scroll bar
 impl App {
 	fn init(terminal: &DefaultTerminal) -> Result<App> {
 		let terminal_width = terminal.size()?.width;

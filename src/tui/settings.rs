@@ -1,18 +1,20 @@
 use ratatui::{
 	buffer::Buffer,
 	layout::{Constraint, Layout, Margin, Rect},
-	style::{Color, Style},
+	style::{Color, Style, Stylize},
 	symbols::{self, line::Set},
 	widgets::{Block, LineGauge, Widget},
 };
 
 use crate::{utils::title_block, App, Pane, Setting};
 
+use super::{BORDER_STYLE, SELECTED_STYLE};
+
 impl App {
 	pub fn render_settings(&self, area: Rect, buf: &mut Buffer) {
 		let mut block = title_block("Settings");
 		if self.selected.pane == Pane::Settings {
-			block = block.border_style(Style::new().fg(Color::Magenta));
+			block = block.border_style(Style::new().fg(BORDER_STYLE));
 		};
 		block.render(area, buf);
 		let [brightness_area, contrast_area] =
@@ -28,14 +30,6 @@ impl App {
 		if monitor >= self.monitors.len() {
 			monitor = self.monitors.len() - 1
 		}
-		/* LineGauge::default()
-		.filled_style(Style::new().fg(Color::Blue))
-		.unfilled_style(Style::new().fg(Color::DarkGray).bg(Color::Black))
-		.block(Block::default().title("Brightness"))
-		.label(format!("{}%", self.monitors[selected.monitor].brightness))
-		// .label(format!("{selected.monitor}"))
-		.ratio(self.monitors[selected.monitor].brightness as f64 / 100.0)
-		.render(area, buf); */
 		render_gauge(
 			"Brightness",
 			self.monitors[monitor].brightness,
@@ -52,14 +46,6 @@ impl App {
 		if monitor >= self.monitors.len() {
 			monitor = self.monitors.len() - 1
 		}
-		// LineGauge::default()
-		// 	.filled_style(Style::new().fg(Color::Blue))
-		// 	.unfilled_style(Style::new().fg(Color::DarkGray).bg(Color::Black))
-		// 	.block(Block::default().title("Contrast"))
-		// 	.label(format!(" {}%", self.monitors[selected.monitor].contrast))
-		// 	// .label(format!("{selected.monitor}"))
-		// 	.ratio(self.monitors[selected.monitor].contrast as f64 / 100.0)
-		// 	.render(area, buf);
 		render_gauge(
 			"Contrast",
 			self.monitors[monitor].contrast,
@@ -72,21 +58,20 @@ impl App {
 
 fn render_gauge(title: &str, ratio: u16, is_selected: bool, area: Rect, buf: &mut Buffer) {
 	let set = Set {
-		horizontal: "•",
+		// horizontal: "•",
+		horizontal: "■",
 		..symbols::line::NORMAL
 	};
-	let bg_color = if is_selected { Color::Blue } else { Color::Reset };
 	LineGauge::default()
-		.filled_style(
-			Style::new()
-				.fg(if is_selected { Color::Gray } else { Color::Reset })
-				.bg(bg_color),
-		)
-		.unfilled_style(Style::new().fg(Color::Black).bg(bg_color))
+		.filled_style(Style::new().fg(if is_selected { SELECTED_STYLE } else { Color::Reset }))
+		.unfilled_style(Style::new().fg(Color::DarkGray))
 		.line_set(set)
-		.block(Block::default().title(title))
-		.label(format!(" {}%", ratio))
-		// .label(format!("{selected.monitor}"))
+		.block(Block::default().title(title.magenta().style(Style::new().fg(if is_selected {
+			SELECTED_STYLE
+		} else {
+			Color::Reset
+		}))))
+		.label(format!("{:>3}%", ratio))
 		.ratio(ratio as f64 / 100.0)
 		.render(area, buf);
 }

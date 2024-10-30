@@ -1,12 +1,13 @@
 use ratatui::{
 	buffer::Buffer,
 	layout::{Constraint, Layout, Rect},
-	style::{Color, Style, Stylize},
-	symbols::line::THICK_VERTICAL,
+	style::{Style, Stylize},
 	widgets::{List, StatefulWidget},
 };
 
 use crate::{utils::title_block, App, Pane};
+
+use super::{BORDER_STYLE, SELECTED_STYLE};
 
 impl App {
 	pub fn render_sidebar(&mut self, area: Rect, buf: &mut Buffer) {
@@ -25,10 +26,10 @@ impl App {
 		let mut title = title_block("Monitors");
 		let mut monitors = List::new(monitors);
 		if self.selected.pane == Pane::Monitors {
-			title = title.border_style(Style::new().fg(Color::Magenta));
-			monitors = monitors.highlight_style(Style::new().bg(Color::Blue))
+			title = title.border_style(Style::new().fg(BORDER_STYLE));
+			monitors = monitors.highlight_style(Style::new().bg(SELECTED_STYLE))
 		} else {
-			monitors = monitors.highlight_style(Style::new().fg(Color::Magenta))
+			monitors = monitors.highlight_style(Style::new().fg(SELECTED_STYLE))
 		};
 		monitors = monitors.block(title);
 		StatefulWidget::render(monitors, area, buf, &mut self.selected.monitor);
@@ -40,10 +41,10 @@ impl App {
 		let mut title = title_block("Presets");
 		let mut presets = List::new(items);
 		if self.selected.pane == Pane::Presets {
-			title = title.border_style(Style::new().fg(Color::Magenta));
-			presets = presets.highlight_style(Style::new().bg(Color::Blue))
+			title = title.border_style(Style::new().fg(BORDER_STYLE));
+			presets = presets.highlight_style(Style::new().bg(SELECTED_STYLE))
 		} else {
-			presets = presets.highlight_style(Style::new().fg(Color::Magenta))
+			presets = presets.highlight_style(Style::new().fg(SELECTED_STYLE))
 		};
 		presets = presets.block(title);
 		StatefulWidget::render(presets, area, buf, &mut self.selected.preset);
