@@ -14,15 +14,20 @@ struct App {
 	should_exit: bool,
 	show_help: bool,
 	monitors: Vec<Monitor>,
-	current_pane: Pane,
 	terminal_width: u16,
-	selected_monitor: ListState,
-	selected_preset: ListState,
-	selected_setting: ListState,
-	// Last keyboard input key. E.g. to allow directly entering a multi-digit brightness number, like `80`.
+	selected: SelectionState,
+	// Last keyboard input key. Used in an event handling context.
+	// E.g. to allow directly entering a multi-digit brightness number, like `80`.
 	last_key: Option<(char, Instant)>,
 	// TODO:
 	// styles: Styles,
+}
+
+struct SelectionState {
+	pane: Pane,
+	monitor: ListState,
+	preset: ListState,
+	setting: Setting,
 }
 
 /* struct Styles {
@@ -38,7 +43,7 @@ enum Pane {
 	Settings,
 }
 
-#[derive(Default, PartialEq)]
+#[derive(Debug, Default, PartialEq)]
 enum Setting {
 	#[default]
 	Brightness,
@@ -52,18 +57,24 @@ fn main() -> Result<()> {
 	app_result
 }
 
+impl Default for SelectionState {
+	fn default() -> Self {
+		// TODO: remember last state.
+		Self {
+			pane: Pane::default(),
+			setting: Setting::default(),
+			monitor: ListState::default().with_selected(Some(0)),
+			preset: ListState::default().with_selected(Some(0)),
+		}
+	}
+}
+
 // TODO: line gauge styles.
-// TODO: setting selection.
 impl App {
 	fn init(terminal: &DefaultTerminal) -> Result<App> {
-		let mut app = App {
-			monitors: monitors::detect(terminal.size()?.width)?,
-			..Default::default()
-		};
-		// TODO: remember state.
-		// app.selected_preset.select(Some(0));
-		app.selected_monitor.select(Some(0));
-		app.selected_setting.select(Some(0));
+		let terminal_width = terminal.size()?.width;
+		let mut app = App { terminal_width, ..Default::default() };
+		app.detect_monitors()?;
 
 		Ok(app)
 	}
