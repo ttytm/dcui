@@ -43,14 +43,22 @@ impl App {
 				Pane::Presets => self.selected.pane = Pane::Monitors,
 				Pane::Monitors => self.selected.pane = Pane::Settings,
 			},
-			KeyCode::Char('L') | KeyCode::Right => match self.selected.setting {
-				Setting::Brightness => self.increase_brightness(),
-				Setting::Contrast => self.increase_contrast(),
-			},
-			KeyCode::Char('H') | KeyCode::Left => match self.selected.setting {
-				Setting::Brightness => self.decrease_brightness(),
-				Setting::Contrast => self.decrease_contrast(),
-			},
+			KeyCode::Char('L') | KeyCode::Right => {
+				if self.selected.pane == Pane::Settings {
+					match self.selected.setting {
+						Setting::Brightness => self.increase_brightness(),
+						Setting::Contrast => self.increase_contrast(),
+					}
+				}
+			}
+			KeyCode::Char('H') | KeyCode::Left => {
+				if self.selected.pane == Pane::Settings {
+					match self.selected.setting {
+						Setting::Brightness => self.decrease_brightness(),
+						Setting::Contrast => self.decrease_contrast(),
+					}
+				}
+			}
 			// KeyCode::Char('G') => self.set_brightness(100),
 			KeyCode::Char('j') | KeyCode::Down => match self.selected.pane {
 				Pane::Monitors => self.selected.monitor.select_next(),
