@@ -24,7 +24,10 @@ impl App {
 		}
 
 		match key.code {
-			// KeyCode::Char(' ') | KeyCode::Enter => self.start(),
+			KeyCode::Char(' ') | KeyCode::Enter => match self.selected.pane {
+				Pane::Monitors => self.selected.pane = Pane::Settings,
+				_ => {}
+			},
 			KeyCode::Char('q') => self.quit(),
 			KeyCode::Char('d') => match self.selected.pane {
 				Pane::Monitors => self.detect_monitors()?,
