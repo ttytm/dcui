@@ -13,10 +13,6 @@ use crate::{
 
 impl App {
 	pub fn render_help(&mut self, area: Rect, buf: &mut Buffer) {
-		if !self.show_help {
-			return;
-		}
-
 		let area = center(area, Constraint::Length(55), Constraint::Percentage(80));
 		let widths = [Constraint::Fill(1), Constraint::Fill(2)];
 
