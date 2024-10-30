@@ -26,7 +26,7 @@ impl App {
 		let info_table = Table::new(info_rows, widths).header(Row::new(vec!["General".bold()]));
 
 		let keys_data = [
-			("Show Help", "?"),
+			("Toggle Help", "?"),
 			("Quit", "q"),
 			("Next Pane", "<tab>, l"),
 			("Previous Pane", "<S-tab>, h"),
@@ -34,6 +34,7 @@ impl App {
 			("Up", "up, k"),
 			("Increase", "left, <S-h>"),
 			("Decrease", "right, <S-l>"),
+			("Toggle Grayscale", "<S-s>"),
 		];
 		let keys_rows = keys_data
 			.into_iter()

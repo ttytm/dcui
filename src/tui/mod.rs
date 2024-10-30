@@ -6,8 +6,8 @@ mod sidebar;
 use ratatui::{
 	buffer::Buffer,
 	layout::{Constraint, Layout, Rect},
-	style::Color,
-	widgets::Widget,
+	style::{Color, Stylize},
+	widgets::{Block, Widget},
 };
 
 use crate::App;
@@ -20,6 +20,11 @@ impl Widget for &mut App {
 		let [main_area, footer_area] = Layout::vertical([Constraint::Fill(1), Constraint::Length(1)]).areas(area);
 		let [left, right] = Layout::horizontal([Constraint::Length(35), Constraint::Fill(1)]).areas(main_area);
 
+		if self.show_grayscale {
+			// Use a black background to enhance contrast and enable more reliable grayscale calibration.
+			let block = Block::new().bg(Color::Rgb(0, 0, 0));
+			block.render(area, buf);
+		}
 		self.render_sidebar(left, buf);
 		self.render_settings(right, buf);
 		footer::render(footer_area, buf);

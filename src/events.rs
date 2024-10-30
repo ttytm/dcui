@@ -76,6 +76,7 @@ impl App {
 					Setting::Contrast => self.selected.setting = Setting::Brightness,
 				},
 			},
+			KeyCode::Char('S') => self.show_grayscale = !self.show_grayscale,
 			KeyCode::Char('?') => self.show_help = !self.show_help,
 			KeyCode::Esc => self.show_help = false,
 			KeyCode::Char(digit) if digit.is_numeric() => {

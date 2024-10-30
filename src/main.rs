@@ -13,6 +13,7 @@ use ratatui::{widgets::ListState, DefaultTerminal};
 struct App {
 	should_exit: bool,
 	show_help: bool,
+	show_grayscale: bool,
 	monitors: Vec<Monitor>,
 	terminal_width: u16,
 	selected: SelectionState,
