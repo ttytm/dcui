@@ -16,7 +16,6 @@ const BRIGHTNESS_CODE: u8 = 0x10;
 const CONTRAST_CODE: u8 = 0x12;
 
 impl App {
-	// TODO: processing indicator.
 	pub fn detect_monitors(&mut self) -> Result<()> {
 		let displays: Vec<Display> = Display::enumerate()
 			.into_iter()
@@ -42,7 +41,7 @@ impl App {
 		Ok(())
 	}
 
-	// TODO: refactor reduce redundancy.
+	// TODO: refactor, reduce redundancy.
 	// == Brightness =============================================================
 	pub fn set_brightness(&mut self, amount: u16) {
 		let Some(selected_monitor) = self.selected.monitor.selected() else { return };

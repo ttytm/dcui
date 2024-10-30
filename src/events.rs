@@ -62,7 +62,6 @@ impl App {
 			// KeyCode::Char('G') => self.set_brightness(100),
 			KeyCode::Char('j') | KeyCode::Down => match self.selected.pane {
 				Pane::Monitors => self.selected.monitor.select_next(),
-				// TODO: require confirm to change preset.
 				Pane::Presets => self.selected.preset.select_next(),
 				Pane::Settings => match self.selected.setting {
 					Setting::Brightness => self.selected.setting = Setting::Contrast,

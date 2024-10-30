@@ -19,8 +19,6 @@ struct App {
 	// Last keyboard input key. Used in an event handling context.
 	// E.g. to allow directly entering a multi-digit brightness number, like `80`.
 	last_key: Option<(char, Instant)>,
-	// TODO:
-	// styles: Styles,
 }
 
 struct SelectionState {
@@ -29,11 +27,6 @@ struct SelectionState {
 	preset: ListState,
 	setting: Setting,
 }
-
-/* struct Styles {
-	border_style: Style,
-	border_type: BorderType,
-} */
 
 #[derive(Default, PartialEq)]
 enum Pane {
@@ -59,7 +52,6 @@ fn main() -> Result<()> {
 
 impl Default for SelectionState {
 	fn default() -> Self {
-		// TODO: remember last state.
 		Self {
 			pane: Pane::default(),
 			setting: Setting::default(),
@@ -69,8 +61,6 @@ impl Default for SelectionState {
 	}
 }
 
-// TODO: Toggle contrast viz.
-// TODO: Help scroll bar
 impl App {
 	fn init(terminal: &DefaultTerminal) -> Result<App> {
 		let terminal_width = terminal.size()?.width;
