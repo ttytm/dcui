@@ -34,14 +34,14 @@ impl App {
 				_ => {}
 			},
 			KeyCode::Char('l') | KeyCode::Tab => match self.selected.pane {
-				Pane::Monitors => self.selected.pane = Pane::Presets,
-				Pane::Presets => self.selected.pane = Pane::Settings,
+				Pane::Monitors => self.selected.pane = Pane::Settings,
 				Pane::Settings => self.selected.pane = Pane::Monitors,
+				_ => {}
 			},
 			KeyCode::Char('h') | KeyCode::BackTab => match self.selected.pane {
-				Pane::Settings => self.selected.pane = Pane::Presets,
-				Pane::Presets => self.selected.pane = Pane::Monitors,
 				Pane::Monitors => self.selected.pane = Pane::Settings,
+				Pane::Settings => self.selected.pane = Pane::Monitors,
+				_ => {}
 			},
 			KeyCode::Char('L') | KeyCode::Right => {
 				if self.selected.pane == Pane::Settings {
