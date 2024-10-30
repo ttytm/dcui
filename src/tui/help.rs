@@ -17,13 +17,14 @@ impl App {
 			return;
 		}
 
-		let area = center(area, Constraint::Length(50), Constraint::Percentage(80));
-		let widths = [Constraint::Fill(1), Constraint::Fill(1)];
+		let area = center(area, Constraint::Length(55), Constraint::Percentage(80));
+		let widths = [Constraint::Fill(1), Constraint::Fill(2)];
 
 		Clear.render(area, buf);
 
 		let info_data = [
 			("Version", env!("CARGO_PKG_VERSION")),
+			("Repository", "https://github.com/ttytm/dcui"),
 			("Configuration", "~/.config/dcui/dcui.toml"),
 		];
 		let info_rows: Vec<Row> = info_data
