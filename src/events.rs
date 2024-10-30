@@ -36,26 +36,33 @@ impl App {
 				Pane::Presets => self.current_pane = Pane::Monitors,
 				Pane::Monitors => self.current_pane = Pane::Settings,
 			},
-			KeyCode::Char('L') | KeyCode::Right => self.increase(),
-			KeyCode::Char('H') | KeyCode::Left => self.decrease(),
-			KeyCode::Char('G') => self.max(),
+			KeyCode::Char('L') | KeyCode::Right => {
+				let Some(current_setting) = self.selected_setting.selected() else {
+					return Ok(());
+				};
+				self.increase_brightness()
+			}
+			KeyCode::Char('H') | KeyCode::Left => self.decrease_brightness(),
+			KeyCode::Char('G') => self.set_brightness(100),
 			KeyCode::Char('j') | KeyCode::Down => match self.current_pane {
 				Pane::Monitors => self.selected_monitor.select_next(),
 				// TODO: require confirm to change preset.
 				Pane::Presets => self.selected_preset.select_next(),
-				_ => {}
+				Pane::Settings => self.selected_setting.select_next(),
 			},
 			KeyCode::Char('k') | KeyCode::Up => match self.current_pane {
 				Pane::Monitors => self.selected_monitor.select_previous(),
 				Pane::Presets => self.selected_preset.select_previous(),
-				_ => {}
+				Pane::Settings => self.selected_setting.select_previous(),
 			},
 			KeyCode::Char('?') => self.show_help = !self.show_help,
 			KeyCode::Esc => self.show_help = false,
 			KeyCode::Char(digit) if digit.is_numeric() => {
 				if let Some((last_digit, last_key_time)) = self.last_key.take() {
 					if last_key_time.elapsed() <= timeout {
-						self.set((last_digit.to_digit(10).unwrap() * 10 + digit.to_digit(10).unwrap()) as u16);
+						self.set_brightness(
+							(last_digit.to_digit(10).unwrap() * 10 + digit.to_digit(10).unwrap()) as u16,
+						);
 					}
 				} else {
 					self.last_key = Some((digit, Instant::now()));
@@ -75,7 +82,7 @@ impl App {
 
 		if !event::poll(timeout)? {
 			if let Some((last_digit, _)) = self.last_key.take() {
-				self.set(last_digit.to_digit(10).unwrap() as u16);
+				self.set_brightness(last_digit.to_digit(10).unwrap() as u16);
 			}
 			return Ok(());
 		}

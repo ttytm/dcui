@@ -18,7 +18,10 @@ struct App {
 	terminal_width: u16,
 	selected_monitor: ListState,
 	selected_preset: ListState,
+	selected_setting: ListState,
+	// Last keyboard input key. E.g. to allow directly entering a multi-digit brightness number, like `80`.
 	last_key: Option<(char, Instant)>,
+	// TODO:
 	// styles: Styles,
 }
 
@@ -33,6 +36,13 @@ enum Pane {
 	Presets,
 	#[default]
 	Settings,
+}
+
+#[derive(Default, PartialEq)]
+enum Setting {
+	#[default]
+	Brightness,
+	Contrast,
 }
 
 fn main() -> Result<()> {
@@ -50,8 +60,10 @@ impl App {
 			monitors: monitors::detect(terminal.size()?.width)?,
 			..Default::default()
 		};
-		app.selected_preset.select(Some(0));
+		// TODO: remember state.
+		// app.selected_preset.select(Some(0));
 		app.selected_monitor.select(Some(0));
+		app.selected_setting.select(Some(0));
 
 		Ok(app)
 	}

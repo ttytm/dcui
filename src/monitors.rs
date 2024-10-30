@@ -4,11 +4,6 @@ use crate::App;
 
 use anyhow::Result;
 
-/* struct Monitors {
-	items: Vec<Monitor>,
-	state: ListState
-} */
-
 pub struct Monitor {
 	pub display: Display,
 	pub brightness: u16,
@@ -30,7 +25,6 @@ pub fn detect(term_width: u16) -> Result<Vec<Monitor>> {
 	for mut d in displays {
 		let brightness = d.handle.get_vcp_feature(BRIGHTNESS_CODE)?.value();
 		let contrast = d.handle.get_vcp_feature(CONTRAST_CODE)?.value();
-		// TODO: check if cols should be handled in tui.
 		let brightness_columns = term_width / 100 * brightness;
 		let contrast_columns = term_width / 100 * contrast;
 		monitors.push(Monitor {
@@ -46,37 +40,31 @@ pub fn detect(term_width: u16) -> Result<Vec<Monitor>> {
 }
 
 impl App {
-	pub fn set(&mut self, amount: u16) {
+	pub fn set_brightness(&mut self, amount: u16) {
 		let Some(selected_monitor) = self.selected_monitor.selected() else { return };
 		self.monitors[selected_monitor].brightness = amount;
-		self.update();
+		self.update_gauges();
 	}
 
-	pub fn increase(&mut self) {
+	pub fn increase_brightness(&mut self) {
 		let Some(selected_monitor) = self.selected_monitor.selected() else { return };
 		if self.monitors[selected_monitor].brightness == 100 {
 			return;
 		}
 		self.monitors[selected_monitor].brightness += 1;
-		self.update();
+		self.update_gauges();
 	}
 
-	pub fn max(&mut self) {
-		let Some(selected_monitor) = self.selected_monitor.selected() else { return };
-		self.monitors[selected_monitor].brightness = 100;
-		self.update();
-	}
-
-	pub fn decrease(&mut self) {
+	pub fn decrease_brightness(&mut self) {
 		let Some(selected_monitor) = self.selected_monitor.selected() else { return };
 		if self.monitors[selected_monitor].brightness == 0 {
 			return;
 		}
 		self.monitors[selected_monitor].brightness -= 1;
-		self.update();
+		self.update_gauges();
 	}
 
-	fn update(&mut self) {
+	fn update_gauges(&mut self) {
 		let Some(selected_monitor) = self.selected_monitor.selected() else { return };
 		let val = self.monitors[selected_monitor].brightness;
 		_ = self.monitors[selected_monitor]
