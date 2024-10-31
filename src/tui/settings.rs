@@ -42,12 +42,17 @@ impl App {
 		};
 		block.render(area, buf);
 
-		const LEVELS: usize = 21;
-		const TOTAL: usize = 255;
-		// ^= `target / LEVELS * i` but with integer ceiling.
-		let values: Vec<_> = (0..=LEVELS).map(|i| (TOTAL * i + LEVELS - 1) / LEVELS).collect();
-		let layout: [Rect; LEVELS + 1] = Layout::horizontal([Constraint::Ratio(1, LEVELS as u32); LEVELS + 1])
-			.areas(area.inner(Margin { horizontal: 8, vertical: 4 }));
+		let total = 255;
+		let levels = match self.terminal_width {
+			..100 => 10,
+			..150 => 15,
+			_ => 21,
+		};
+		// ^= `total / levels * i` but with integer ceiling.
+		let values: Vec<_> = (0..=levels).map(|i| (total * i + levels - 1) / levels).collect();
+		let layout = Layout::horizontal(vec![Constraint::Ratio(1, levels as u32); levels + 1])
+			.split(area.inner(Margin { horizontal: 6, vertical: 3 }))
+			.to_vec();
 
 		for (val, area) in values.into_iter().zip(layout) {
 			let v = val as u8;
