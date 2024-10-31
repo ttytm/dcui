@@ -1,5 +1,5 @@
 mod footer;
-mod help;
+mod info;
 mod settings;
 mod sidebar;
 

@@ -26,7 +26,7 @@ impl App {
 		let info_table = Table::new(info_rows, widths).header(Row::new(vec!["General".bold()]));
 
 		let keys_data = [
-			("Toggle Help", "?"),
+			("Toggle Info", "?"),
 			("Quit", "q"),
 			("Next Pane", "<tab>, l"),
 			("Previous Pane", "<S-tab>, h"),
@@ -52,7 +52,7 @@ impl App {
 				.areas(area.inner(Margin { horizontal: 1, vertical: 1 }));
 
 		Clear.render(area, buf);
-		title_block("Help").render(area, buf);
+		title_block("Info").render(area, buf);
 		info_table.render(info_area, buf);
 		keys_table.render(keys_area, buf);
 	}
