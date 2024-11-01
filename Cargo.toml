@@ -4,6 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-anyhow = "1.0.91"
-ddc-hi = "0.4.1"
-ratatui = "0.29.0"
+anyhow = "1.0"
+ddc-hi = "0.4"
+ratatui = "0.29"
