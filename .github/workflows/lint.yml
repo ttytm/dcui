@@ -1,0 +1,68 @@
+name: Lint
+
+on:
+  workflow_call:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  fmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run rustfmt
+        run: cargo fmt --all --check
+
+  clippy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          fail-on-cache-miss: true
+      - uses: clechasseur/rs-clippy-check@v3
+
+  msrv:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup dependencies
+        run: |
+          version=v0.16.2
+          artifact="cargo-msrv-x86_64-unknown-linux-gnu-$version"
+          curl -LO "https://github.com/foresterre/cargo-msrv/releases/download/$version/$artifact.tgz"
+          tar -xvf "$artifact.tgz"
+          mv "${artifact}/cargo-msrv" ./
+      - name: Detect MSRV changes
+        run: |
+          defined_msrv="$(./cargo-msrv show --output-format json 2>&1 | jq -r '.result.version' | tail -n 1)"
+          dependency_msrv="$(./cargo-msrv list --output-format json 2>&1 | jq -r '.result.list[0].msrv' | tail -n 1)"
+          echo "defined_msrv=$defined_msrv"
+          echo "dependency_msrv=$dependency_msrv"
+          if [ -z "$defined_msrv" ] || [ -z "$dependency_msrv" ]; then
+            echo "::error::Failed to detect MSRV"
+            exit 1
+          fi
+          if [ "$defined_msrv" != "$dependency_msrv" ]; then
+            echo "::error::MSRV changed | defined: '$defined_msrv', absolute: '$dependency_msrv'"
+            exit 1
+          fi
+
+  actionlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: docker://rhysd/actionlint:latest
+        with:
+          args: -color

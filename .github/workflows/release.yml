@@ -1,0 +1,88 @@
+name: Release
+
+on:
+  workflow_call:
+
+env:
+  REPO: dcui
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: Install dependencies
+        run: |
+          sudo apt -qq install libudev-dev libfuse2
+          sudo curl -Lo /usr/local/bin/appimagetool "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage"
+          sudo chmod +x /usr/local/bin/appimagetool
+          cargo install cargo-appimage
+          cargo install cargo-deb
+      - name: Build
+        run: |
+          cargo build --release --verbose
+          cargo appimage
+          cargo deb
+      - name: Prepare artifacts
+        run: |
+          target=$(rustc --print cfg | grep 'target_arch\|target_os' | sort -r | cut -d'=' -f2 | tr -d '"' | paste -sd '-')
+          mkdir "$target"
+          artifact="dcui-$target"
+          mv "./target/appimage/$REPO.AppImage" "./$target/$artifact.AppImage"
+          mv ./target/debian/"$REPO"*.deb "./$target/$artifact.deb"
+          mv "./target/release/$REPO" "./$target/$artifact"
+          ls "$target"
+          echo "TARGET=$target" >> "$GITHUB_ENV"
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.REPO }}-${{ env.TARGET }}
+          path: ${{ env.TARGET }}/${{ env.REPO }}*
+      - name: Prepare release
+        if: >
+          github.repository_owner == 'ttytm'
+          && ((github.ref_name == 'main' && github.event_name == 'push') || github.ref_type == 'tag')
+        run: |
+          if [ "$GITHUB_REF_TYPE" == tag ]; then
+            {
+              echo "TAG=$GITHUB_REF_NAME";
+              echo "TITLE=$REPO ${GITHUB_REF_NAME:1}"; # v1.0.0 -> dcui 1.0.0
+            } >> "$GITHUB_ENV"
+          else
+            {
+              echo "IS_PRERELEASE=true";
+              echo "TAG=nightly";
+              echo "TITLE=nightly build $(date -u +'%Y-%m-%d %H:%M:%S UTC')";
+              echo "BODY=Generated from commit $GITHUB_SHA.";
+            } >> "$GITHUB_ENV"
+          fi
+      - name: Update nightly tag
+        if: env.IS_PRERELEASE
+        uses: richardsimko/update-tag@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: nightly
+      - name: Release
+        if: >
+          github.repository_owner == 'ttytm'
+          && ((github.ref_name == 'main' && github.event_name == 'push') || github.ref_type == 'tag')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.TARGET }}/${{ env.REPO }}*
+          tag_name: ${{ env.TAG }}
+          body: ${{ env.BODY }}
+          name: ${{ env.TITLE }}
+          prerelease: ${{ env.IS_PRERELEASE }}

@@ -1,0 +1,30 @@
+name: Linux
+
+on:
+  workflow_call:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: Install dependencies
+        run: sudo apt -qq install libudev-dev
+      - name: Build
+        run: cargo build
+
+  lint:
+    needs: build
+    uses: ./.github/workflows/lint.yml
