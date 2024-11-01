@@ -6,6 +6,7 @@ use ratatui::crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind, Ke
 use crate::{App, Pane, Setting};
 
 impl App {
+	#[allow(clippy::match_same_arms)]
 	fn handle_key(&mut self, key: KeyEvent, timeout: Duration) -> Result<()> {
 		if key.kind != KeyEventKind::Press {
 			return Ok(());
@@ -24,24 +25,26 @@ impl App {
 		}
 
 		match key.code {
-			KeyCode::Char(' ') | KeyCode::Enter => match self.selected.pane {
-				Pane::Monitors => self.selected.pane = Pane::Settings,
-				_ => {}
-			},
+			KeyCode::Char(' ') | KeyCode::Enter => {
+				if self.selected.pane == Pane::Monitors {
+					self.selected.pane = Pane::Settings;
+				}
+			}
 			KeyCode::Char('q') => self.quit(),
-			KeyCode::Char('d') => match self.selected.pane {
-				Pane::Monitors => self.detect_monitors()?,
-				_ => {}
-			},
+			KeyCode::Char('d') => {
+				if self.selected.pane == Pane::Monitors {
+					self.detect_monitors()?;
+				}
+			}
 			KeyCode::Char('l') | KeyCode::Tab => match self.selected.pane {
 				Pane::Monitors => self.selected.pane = Pane::Settings,
 				Pane::Settings => self.selected.pane = Pane::Monitors,
-				_ => {}
+				Pane::Presets => {}
 			},
 			KeyCode::Char('h') | KeyCode::BackTab => match self.selected.pane {
 				Pane::Monitors => self.selected.pane = Pane::Settings,
 				Pane::Settings => self.selected.pane = Pane::Monitors,
-				_ => {}
+				Pane::Presets => {}
 			},
 			KeyCode::Char('L') | KeyCode::Right => {
 				if self.selected.pane == Pane::Settings {

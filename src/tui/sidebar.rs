@@ -21,9 +21,9 @@ impl App {
 		let mut monitors = List::new(monitors);
 		if self.selected.pane == Pane::Monitors {
 			title = title.border_style(Style::new().fg(BORDER_STYLE));
-			monitors = monitors.highlight_style(Style::new().bg(SELECTED_STYLE))
+			monitors = monitors.highlight_style(Style::new().bg(SELECTED_STYLE));
 		} else {
-			monitors = monitors.highlight_style(Style::new().fg(SELECTED_STYLE))
+			monitors = monitors.highlight_style(Style::new().fg(SELECTED_STYLE));
 		};
 		monitors = monitors.block(title);
 		StatefulWidget::render(monitors, area, buf, &mut self.selected.monitor);

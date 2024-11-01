@@ -38,14 +38,14 @@ impl App {
 		};
 		let mut block = Block::bordered().border_set(set);
 		if self.selected.pane == Pane::Settings {
-			block = block.border_style(Style::new().fg(BORDER_STYLE))
+			block = block.border_style(Style::new().fg(BORDER_STYLE));
 		};
 		block.render(area, buf);
 
 		let total = 255;
 		let levels = match self.terminal_width {
 			..100 => 10,
-			..150 => 15,
+			100..150 => 15,
 			_ => 21,
 		};
 		// ^= `total / levels * i` but with integer ceiling.
@@ -72,7 +72,7 @@ impl App {
 			return;
 		};
 		if monitor >= self.monitors.len() {
-			monitor = self.monitors.len() - 1
+			monitor = self.monitors.len() - 1;
 		}
 		render_gauge(
 			"Brightness",
@@ -88,7 +88,7 @@ impl App {
 			return;
 		};
 		if monitor >= self.monitors.len() {
-			monitor = self.monitors.len() - 1
+			monitor = self.monitors.len() - 1;
 		}
 		render_gauge(
 			"Contrast",
@@ -115,7 +115,7 @@ fn render_gauge(title: &str, ratio: u16, is_selected: bool, area: Rect, buf: &mu
 		} else {
 			Color::Reset
 		}))))
-		.label(format!("{:>3}%", ratio))
-		.ratio(ratio as f64 / 100.0)
+		.label(format!("{ratio:>3}%"))
+		.ratio(f64::from(ratio) / 100.0)
 		.render(area, buf);
 }

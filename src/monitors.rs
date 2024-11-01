@@ -34,7 +34,7 @@ impl App {
 				contrast,
 				brightness_columns,
 				contrast_columns,
-			})
+			});
 		}
 
 		self.monitors = monitors;

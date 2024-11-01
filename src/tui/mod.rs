@@ -29,7 +29,7 @@ impl Widget for &mut App {
 		self.render_settings(right, buf);
 		footer::render(footer_area, buf);
 		if self.show_help {
-			self.render_help(main_area, buf);
+			info::render(main_area, buf);
 		}
 	}
 }
