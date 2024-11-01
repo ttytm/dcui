@@ -17,7 +17,6 @@ impl App {
 		let info_data = [
 			("Version", env!("CARGO_PKG_VERSION")),
 			("Repository", "https://github.com/ttytm/dcui"),
-			("Configuration", "~/.config/dcui/dcui.toml"),
 		];
 		let info_rows: Vec<Row> = info_data
 			.into_iter()
