@@ -1,5 +1,13 @@
 # dcui
 
+[badge__build-status]: https://img.shields.io/github/actions/workflow/status/ttytm/dcui/ci.yml?branch=main&logo=github&logoColor=C0CAF5&labelColor=333
+[badge__version]: https://img.shields.io/github/v/tag/ttytm/dcui?logo=task&logoColor=C0CAF5&labelColor=333&color=DEA584
+[badge__msrv]: https://img.shields.io/badge/MSRV-1.74.0-DEA584?logo=rust&labelColor=333
+
+[![][badge__build-status]](https://github.com/ttytm/dcui/actions?query=branch%3Amain)
+[![][badge__version]](https://github.com/ttytm/dcui/releases/latest)
+![][badge__msrv]
+
 > A minimal TUI application (under 1 MB compiled) for controlling external displays.
 
 <table>
