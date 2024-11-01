@@ -1,3 +1,11 @@
+#![deny(clippy::all)]
+#![warn(clippy::pedantic)]
+#![allow(
+	clippy::module_name_repetitions,
+	clippy::cast_possible_truncation,
+	clippy::cast_sign_loss
+)]
+
 mod events;
 mod monitors;
 mod tui;
