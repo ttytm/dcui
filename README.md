@@ -44,7 +44,7 @@ Keymaps are currently hard-coded.
 ## Installation
 
 Release binaries can be downloaded in bare executable, AppImage and Deb formats from the [releases page](https://github.com/ttytm/dcui/releases).
-Using `cargo` for installation from the Git source or self-compilation are methods for installation on all (including untested) platforms.
+Using `cargo` to install from the Git source or self-compilation enable installation on all (including untested) platforms.
 
 ```sh
 cargo install --git https://github.com/ttytm/dcui
