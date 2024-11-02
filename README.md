@@ -41,24 +41,19 @@
 
 Keymaps are currently hard-coded.
 
-## About
+## Installation
 
-### TL;DR (Disclaimer)
+Release binaries can be downloaded in bare executable, AppImage and Deb formats from the [releases page](https://github.com/ttytm/dcui/releases).
+Using `cargo` for installation from the Git source or self-compilation are methods for installation on all (including untested) platforms.
 
-- So far, only tested on Linux
-- Feature-incomplete
+```sh
+cargo install --git https://github.com/ttytm/dcui
+```
 
-### Objectives
+## Disclaimer
 
-There were two personal objectives in creating this application:
-
-1. To test-drive the Ratatui library, assessing its suitability for a more extensive TUI project.
-
-2. To create an accessible tool for adjusting display brightness with instant visual feedback, directly from the environment that is always open and in use on my machine — the terminal.
-
-Both are fulfilled, and others may benefit from the latter as well. Still, the application is lacking in features, proper project structure, and testing across devices and operating systems to serve a general user base. So far, exploratory testing has only been done on Linux, so release binaries for other OSes are not yet provided.
-
-Feasible optimizations, enhancements, and fixes of personal and public interest will be added as time permits.
+This is early beta software.
+So far, exploratory testing has only been done on GNU/Linux, so it's the only OS prebuilt binaries are provided for.
 
 ## Credits
 
